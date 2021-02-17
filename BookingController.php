@@ -35,9 +35,9 @@ class BookingController extends Controller
      */
     public function index(Request $request)
     {
-        if($user_id = $request->get('user_id')) {
+        if($userId = $request->get('userId')) {
 
-            $response = $this->repository->getUsersJobs($user_id);
+            $response = $this->repository->getUsersJobs($userId);
 
         }
         elseif($request->__authenticatedUser->user_type == env('ADMIN_ROLE_ID') || $request->__authenticatedUser->user_type == env('SUPERADMIN_ROLE_ID'))
@@ -107,9 +107,9 @@ class BookingController extends Controller
      */
     public function getHistory(Request $request)
     {
-        if($user_id = $request->get('user_id')) {
+        if($userId = $request->get('userId')) {
 
-            $response = $this->repository->getUsersJobsHistory($user_id, $request);
+            $response = $this->repository->getUsersJobsHistory($userId, $request);
             return response($response);
         }
 
@@ -196,59 +196,84 @@ class BookingController extends Controller
     {
         $data = $request->all();
 
-        if (isset($data['distance']) && $data['distance'] != "") {
-            $distance = $data['distance'];
-        } else {
-            $distance = "";
-        }
-        if (isset($data['time']) && $data['time'] != "") {
-            $time = $data['time'];
-        } else {
-            $time = "";
-        }
-        if (isset($data['jobid']) && $data['jobid'] != "") {
-            $jobid = $data['jobid'];
-        }
-
-        if (isset($data['session_time']) && $data['session_time'] != "") {
-            $session = $data['session_time'];
-        } else {
-            $session = "";
-        }
-
-        if ($data['flagged'] == 'true') {
-            if($data['admincomment'] == '') return "Please, add comment";
-            $flagged = 'yes';
-        } else {
-            $flagged = 'no';
+        if (isset($data['distance']) && $data['distance'] != "") 
+        {
+          $distance = $data['distance'];
+        } 
+        else 
+        {
+          $distance = "";
         }
         
-        if ($data['manually_handled'] == 'true') {
-            $manually_handled = 'yes';
-        } else {
-            $manually_handled = 'no';
+        if (isset($data['time']) && $data['time'] != "") 
+        {
+          $time = $data['time'];
         }
 
-        if ($data['by_admin'] == 'true') {
-            $by_admin = 'yes';
-        } else {
-            $by_admin = 'no';
+        else 
+        {
+          $time = "";
+        }
+      
+        if (isset($data['jobid']) && $data['jobid'] != "") 
+        {
+          $jobid = $data['jobid'];
         }
 
-        if (isset($data['admincomment']) && $data['admincomment'] != "") {
-            $admincomment = $data['admincomment'];
-        } else {
-            $admincomment = "";
+        if (isset($data['session_time']) && $data['session_time'] != "") 
+        {
+          $session = $data['session_time'];
+        } 
+        else 
+        {
+          $session = "";
         }
-        if ($time || $distance) {
 
-            $affectedRows = Distance::where('job_id', '=', $jobid)->update(array('distance' => $distance, 'time' => $time));
+        if ($data['flagged'] == 'true') 
+        {
+          if($data['admincomment'] == '') return "Please, add comment";
+          $flagged = 'yes';
+        } 
+        else 
+        {
+          $flagged = 'no';
+        }
+        
+        if ($data['manually_handled'] == 'true') 
+        {
+          $manually_handled = 'yes';
+        } 
+        else 
+        {
+          $manually_handled = 'no';
         }
 
-        if ($admincomment || $session || $flagged || $manually_handled || $by_admin) {
+        if ($data['by_admin'] == 'true') 
+        {
+          $by_admin = 'yes';
+        } 
+        else 
+        {
+          $by_admin = 'no';
+        }
 
-            $affectedRows1 = Job::where('id', '=', $jobid)->update(array('admin_comments' => $admincomment, 'flagged' => $flagged, 'session_time' => $session, 'manually_handled' => $manually_handled, 'by_admin' => $by_admin));
+        if (isset($data['admincomment']) && $data['admincomment'] != "") 
+        {
+          $admincomment = $data['admincomment'];
+        } 
+        else 
+        {
+          $admincomment = "";
+        }
+      
+        if ($time || $distance) 
+        {
+          $affectedRows = Distance::where('job_id', '=', $jobid)->update(array('distance' => $distance, 'time' => $time));
+        }
 
+        if ($admincomment || $session || $flagged || $manually_handled || $by_admin) 
+        {
+          $affectedRows1 = Job::where('id', '=', $jobid)->update(array('admin_comments' => $admincomment, 'flagged' => $flagged, 'session_time' => $session, 'manually_handled' => $manually_handled, 'by_admin' => $by_admin));
         }
 
         return response('Record updated!');
@@ -266,8 +291,8 @@ class BookingController extends Controller
     {
         $data = $request->all();
         $job = $this->repository->find($data['jobid']);
-        $job_data = $this->repository->jobToData($job);
-        $this->repository->sendNotificationTranslator($job, $job_data, '*');
+        $jobData = $this->repository->jobToData($job);
+        $this->repository->sendNotificationTranslator($job, $jobData, '*');
 
         return response(['success' => 'Push sent']);
     }
@@ -281,13 +306,16 @@ class BookingController extends Controller
     {
         $data = $request->all();
         $job = $this->repository->find($data['jobid']);
-        $job_data = $this->repository->jobToData($job);
+        $jobData = $this->repository->jobToData($job);
 
-        try {
+        try 
+        {
             $this->repository->sendSMSNotificationToTranslator($job);
             return response(['success' => 'SMS sent']);
-        } catch (\Exception $e) {
-            return response(['success' => $e->getMessage()]);
+        } 
+        catch (\Exception $e)
+        {
+          return response(['success' => $e->getMessage()]);
         }
     }
 
